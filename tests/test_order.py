@@ -3,7 +3,7 @@ import pytest
 from pages.main_page import MainPage
 from pages.order_page import OrderPage
 
-order_data = [
+order_data_top_button = [
     {
         "name": "Иван",
         "surname": "Иванов",
@@ -11,9 +11,11 @@ order_data = [
         "metro": "Сокольники",
         "phone": "89991234567",
         "date": "01.01.2026",
-        "comment": "Позвоните за час",
-        "button_location": "top"
+        "comment": "Позвоните за час"
     },
+]
+
+order_data_bottom_button = [
     {
         "name": "Петр",
         "surname": "Петров",
@@ -21,24 +23,33 @@ order_data = [
         "metro": "Первомайская",
         "phone": "89997654321",
         "date": "02.02.2026",
-        "comment": "Домофон не работает",
-        "button_location": "bottom"
+        "comment": "Домофон не работает"
     },
 ]
 
 
 class TestOrder:
-    @pytest.mark.parametrize("order", order_data)
-    @allure.title("Оформление заказа")
-    def test_order_scooter(self, driver, order):
+
+    @pytest.mark.parametrize("order", order_data_top_button)
+    @allure.title("Оформление заказа через верхнюю кнопку")
+    def test_order_scooter_top_button(self, driver, order):
         main_page = MainPage(driver)
         order_page = OrderPage(driver)
         main_page.coockie_accept()
+        order_page.click_order_button_top()
+        order_page.fill_order_form_1(order["name"], order["surname"], order["address"], order["metro"], order["phone"])
+        order_page.click_next_button()
+        order_page.fill_order_form_2(order["date"], order["comment"])
+        order_page.confirm_order()
+        order_page.check_success_message()
 
-        if order["button_location"] == "top":
-            order_page.click_order_button_top()
-        else:
-            order_page.click_order_button_bottom()
+    @pytest.mark.parametrize("order", order_data_bottom_button)
+    @allure.title("Оформление заказа через нижнюю кнопку")
+    def test_order_scooter_bottom_button(self, driver, order):
+        main_page = MainPage(driver)
+        order_page = OrderPage(driver)
+        main_page.coockie_accept()
+        order_page.click_order_button_bottom()
         order_page.fill_order_form_1(order["name"], order["surname"], order["address"], order["metro"], order["phone"])
         order_page.click_next_button()
         order_page.fill_order_form_2(order["date"], order["comment"])
@@ -51,15 +62,12 @@ class TestOrder:
         order_page = OrderPage(driver)
         main_page.coockie_accept()
         order_page.click_samokat_logo()
-        assert driver.current_url == "https://qa-scooter.praktikum-services.ru/"
+        assert order_page.get_current_url() == "https://qa-scooter.praktikum-services.ru/"
 
     @allure.title("Проверка перехода на страницу Дзена по логотипу Яндекса")
     def test_click_yandex_logo(self, driver):
-
         main_page = MainPage(driver)
         order_page = OrderPage(driver)
         main_page.coockie_accept()
         order_page.click_yandex_logo()
-
-        driver.switch_to.window(driver.window_handles[1])
-        assert "dzen.ru" in driver.current_url
+        assert order_page.wait_for_new_window_and_url("dzen.ru")

@@ -2,8 +2,6 @@ import allure
 from pages.base_page import BasePage
 from locators.order_locators import OrderLocators
 from selenium.webdriver.common.keys import Keys
-from selenium.webdriver.support.ui import WebDriverWait
-from selenium.webdriver.support import expected_conditions as EC
 
 class OrderPage(BasePage):
     def __init__(self, driver):
@@ -23,12 +21,12 @@ class OrderPage(BasePage):
         self.send_keys_to_input(OrderLocators.NAME_PLACEHOLDER, name)
         self.send_keys_to_input(OrderLocators.SURNAME_PLACEHOLDER, surname)
         self.send_keys_to_input(OrderLocators.ADDRESS_PLACEHOLDER, address)
-
         metro_element = self.wait_for_element(OrderLocators.METRO_PLACEHOLDER)
         metro_element.send_keys(metro)
         metro_element.send_keys(Keys.ARROW_DOWN)
         metro_element.send_keys(Keys.ENTER)
         self.send_keys_to_input(OrderLocators.PHONE_PLACEHOLDER, phone)
+
 
     @allure.step("Кликнуть кнопку 'Далее'")
     def click_next_button(self):
@@ -53,14 +51,11 @@ class OrderPage(BasePage):
     def check_success_message(self):
         self.wait_for_element(OrderLocators.ORDER_SUCCESS_MESSAGE)
 
-    @allure.step("Кликнуть на логотип 'Самокат'")
+    @allure.step("Кликнуть на логотип Самоката")
     def click_samokat_logo(self):
         self.click_on_element(OrderLocators.SAMOKAT_LOGO)
 
-    @allure.step("Кликнуть на логотип 'Яндекс'")
+    @allure.step("Кликнуть на логотип Яндекса")
     def click_yandex_logo(self):
         self.click_on_element(OrderLocators.YANDEX_LOGO)
-        WebDriverWait(self.driver, 10).until(EC.number_of_windows_to_be(2))
-        self.driver.switch_to.window(self.driver.window_handles[1])
-        WebDriverWait(self.driver, 10).until(EC.url_contains("dzen.ru"))
-        assert "dzen.ru" in self.driver.current_url
+
